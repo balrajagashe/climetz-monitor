@@ -9,10 +9,10 @@ jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
     steps:
-      # 1. Check out the repo
+      # 1. Check out your code
       - uses: actions/checkout@v3
 
-      # 2. Set up Node.js 18.x
+      # 2. Use Node.js 18
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
@@ -26,17 +26,16 @@ jobs:
       - name: Build
         run: npm run build
 
-      # 5. (Optional) Prune dev dependencies to speed deploy
-      - name: Prune devDependencies
-        run: npm prune --production
+      # 5. Azure login using your publish profile
+      - name: Azure Login
+        uses: azure/login@v1
+        with:
+          publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
 
       # 6. Deploy to Azure Web App
       - name: Deploy to Azure Web App
         uses: azure/webapps-deploy@v2
         with:
-          # Replace with your actual Azure Web App name
-          app-name: cliemetz-monitor  
-          # This secret is automatically set up when you configure Deployment Center
+          app-name: cliemetz-monitor    # make sure this matches your App Service name
           publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
-          # Deploy the entire project folder (with .next/, node_modules/, etc.)
           package: .
